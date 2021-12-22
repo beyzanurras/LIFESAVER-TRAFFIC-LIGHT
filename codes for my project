@@ -1,0 +1,67 @@
+#include <MsTimer2.h>           //Timer interrupt function library
+int pbIn = 0;                    // Define interrupt 0 that is digital pin 2
+int number=0;                    //Interrupt times
+volatile int state = LOW;         // Defines the indicator LED state, the default is not bright
+
+int yellow_pin=4;
+int green_pin=5;
+int red_pin=6;
+
+void setup()
+{
+     Serial.begin(9600);
+     pinMode(red_pin, OUTPUT);
+     pinMode(yellow_pin, OUTPUT);
+     pinMode(green_pin, OUTPUT);//
+     attachInterrupt(pbIn, stateChange, FALLING); // Set the interrupt function, interrupt pin is digital pin D2, interrupt service function is stateChange (), when the D2 power change from high to low , the trigger interrupt.
+     MsTimer2::set(1000, Handle); // Set the timer interrupt function, running once Handle() function per 1000ms
+     MsTimer2::start();//Start timer interrupt function
+
+}
+
+void loop()
+{
+Serial.println(number); // Printing the number of times of interruption, which is convenient for debugging.
+    delay(1);
+    if(state == HIGH)  //When a moving object is detected, the ledout is automatically closed after the light 2S, the next trigger can be carried out, and No need to reset. Convenient debugging.
+    {
+        delay(100);
+        state = HIGH;
+        digitalWrite(green_pin, state);    //turn on green led
+    }
+
+ }
+
+
+void stateChange()  //Interrupt service function
+{
+  number++;  //Interrupted once, the number + 1
+
+}
+
+void Handle()   //Timer service function
+{
+    if(number>1)  //If in the set of the interrupt time the number more than 1 times, then means have detect moving objects,This value can be adjusted according to the actual situation, which is equivalent to adjust the threshold of detection speed of moving objects.
+         {
+                   state = HIGH;
+                   digitalWrite(green_pin, state);    //light led
+                   number=0;   //Cleare the number, so that it does not affect the next trigger
+         }
+        else
+              digitalWrite(red_pin,HIGH);
+              digitalWrite(yellow_pin,LOW);
+              digitalWrite(green_pin,LOW);
+              delay(10000);
+  
+              digitalWrite(red_pin,LOW);
+              digitalWrite(yellow_pin,HIGH);
+              digitalWrite(green_pin,LOW);
+              delay(100);
+
+              digitalWrite(red_pin,LOW);
+              digitalWrite(yellow_pin,LOW);
+              digitalWrite(green_pin,HIGH);
+              delay(10000);
+ 
+              number=0;   //If in the setting of the interrupt time, the number of the interrupt is not reached the threshold value, it is not detected the moving objects, Cleare the number.
+}
