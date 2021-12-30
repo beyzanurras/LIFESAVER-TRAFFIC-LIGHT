@@ -54,7 +54,7 @@ else // If in the set of the interrupt time the number less than 1 times, will d
               digitalWrite(red_pin,LOW);
               digitalWrite(yellow_pin,HIGH);
               digitalWrite(green_pin,LOW);
-              delay(500);
+              delay(1000);
 
               digitalWrite(red_pin,LOW);
               digitalWrite(yellow_pin,LOW);
